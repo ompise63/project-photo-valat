@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Vault - Secure Steganography & QR Encoder</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Dependencies via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+</head>
+
+<body>
+    <div class="background-mesh"></div>
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="landing-container">
+        <div class="landing-content">
+            <div class="logo giant-logo">
+                <i data-lucide="shield-check"></i>
+                <h1>Photo Vault</h1>
+            </div>
+            <p class="description">
+                The ultimate privacy tool to secure your sensitive information.
+                Hide texts, URLs, and files inside ordinary images using advanced
+                invisible Steganography or QR Code Integration. Your data is protected
+                by military-grade AES encryption.dont feel worry about
+            </p>
+            <button id="btn-enter-app" class="primary-btn giant-btn">
+                Click Here to Start <i data-lucide="arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <main id="main-app" class="app-container hidden">
+        <header class="app-header">
+            <div class="logo">
+                <i data-lucide="shield-check"></i>
+                <h1>Photo Vault</h1>
+            </div>
+            <p class="subtitle">Securely hide and encrypt data within images</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="encoder">
+                <i data-lucide="lock"></i> Encoder
+            </button>
+            <button class="tab-btn" data-tab="decoder">
+                <i data-lucide="unlock"></i> Decoder
+            </button>
+        </div>
+
+        <div class="tab-content">
+            <!-- ENCODER SECTION -->
+            <section id="encoder" class="view-panel active">
+                <div class="stepper">
+                    <div class="step">
+                        <h3>1. Upload Cover Image</h3>
+                        <div class="upload-area" id="enc-image-upload">
+                            <i data-lucide="image-plus"></i>
+                            <span>Drag & Drop or Click to Select</span>
+                            <input type="file" id="enc-image-input" accept="image/*" hidden>
+                        </div>
+                        <canvas id="enc-canvas" class="preview-canvas" hidden></canvas>
+                    </div>
+
+                    <div class="step">
+                        <h3>2. Select Data to Hide</h3>
+                        <div class="data-type-selector">
+                            <label><input type="radio" name="dataType" value="text" checked> Text/URL</label>
+                            <label><input type="radio" name="dataType" value="file"> File(s)</label>
+                        </div>
+                        <div id="enc-text-input-area">
+                            <textarea id="enc-text-input" placeholder="Enter text or URL to secure..."></textarea>
+                        </div>
+                        <div id="enc-file-input-area" hidden>
+                            <div class="upload-area small" id="enc-file-upload">
+                                <i data-lucide="file-plus"></i>
+                                <span>Select Files</span>
+                                <input type="file" id="enc-file-input" multiple hidden>
+                            </div>
+                            <ul id="enc-file-list" class="file-list"></ul>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>3. Security & Encoding</h3>
+                        <div class="input-group">
+                            <label for="enc-password"><i data-lucide="key"></i> Encryption Password</label>
+                            <input type="password" id="enc-password" placeholder="Enter strong password">
+                        </div>
+                        <div class="input-group">
+                            <label><i data-lucide="cpu"></i> Encoding Method</label>
+                            <select id="enc-method">
+                                <option value="steganography">Steganography (Invisible LSB)</option>
+                                <option value="qr">QR Code Integration</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button id="btn-encode" class="primary-btn">
+                            <i data-lucide="lock"></i> Encode & Generate
+                        </button>
+                    </div>
+
+                    <div id="enc-result" class="result-area" hidden>
+                        <h3>Encoded Image Output</h3>
+                        <img id="enc-output-img" src="" alt="Encoded Output">
+                        <a id="enc-download-btn" class="download-btn" download="vault-image.png">
+                            <i data-lucide="download"></i> Download Image
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DECODER SECTION -->
+            <section id="decoder" class="view-panel">
+                <div class="stepper">
+                    <div class="step">
+                        <h3>1. Upload Encoded Image</h3>
+                        <div class="upload-area" id="dec-image-upload">
+                            <i data-lucide="image-minus"></i>
+                            <span>Drag & Drop Encoded Image</span>
+                            <input type="file" id="dec-image-input" accept="image/*" hidden>
+                        </div>
+                        <canvas id="dec-canvas" class="preview-canvas" hidden></canvas>
+                    </div>
+
+                    <div class="step">
+                        <h3>2. Decryption</h3>
+                        <div class="input-group">
+                            <label for="dec-password"><i data-lucide="key"></i> Decryption Password</label>
+                            <input type="password" id="dec-password" placeholder="Enter password used during encoding">
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button id="btn-decode" class="primary-btn">
+                            <i data-lucide="unlock"></i> Extract & Decode
+                        </button>
+                    </div>
+
+                    <div id="dec-result" class="result-area" hidden>
+                        <h3>Recovered Data</h3>
+                        <div id="dec-output-text-area" hidden>
+                            <textarea id="dec-output-text" readonly></textarea>
+                            <button id="btn-copy-text" class="secondary-btn"><i data-lucide="copy"></i> Copy</button>
+                        </div>
+                        <div id="dec-output-file-area" hidden>
+                            <p>Files extracted successfully!</p>
+                            <button id="btn-download-files" class="primary-btn"><i data-lucide="download"></i> Download
+                                Extracted Archive</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden">
+            <span id="toast-message"></span>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
